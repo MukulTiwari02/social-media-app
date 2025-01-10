@@ -1,14 +1,22 @@
 import Card from "@/components/Card";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { createClient } from "@/utils/supabase/component";
 
 export default function NavigationCard() {
   const router = useRouter();
   const { asPath: pathname } = router;
+  const supabase = createClient();
+
+  async function logoutFunction() {
+    const signout = await supabase.auth.signOut();
+    router.push("/login");
+  }
+
   const activeElementClasses =
     "-translate-y-2 md:translate-y-0 -my-7 md:my-2 items-center text- flex md:justify-start gap-4 md:py-4 bg-socialBlue md:-mx-10 md:px-10 md:text-white rounded-md md:shadow-md md:shadow-gray-300 justify-center";
   const nonActiveElementClasses =
-    "-my-5 md:my-0 items-center flex justify-center md:justify-start gap-4 md:py-3 md:hover:bg-socialBlue md:hover:bg-opacity-40 hover:scale-110 md:hover:shadow-md md:shadow-gray-300 hover:scsale-125 md:-mx-5 transition-all rounded-md md:px-5 md:my-2";
+    "-my-5 md:my-0 items-center flex justify-center md:justify-start gap-4 md:py-3 md:hover:bg-socialBlue md:hover:bg-opacity-40 hover:scale-110 md:hover:shadow-md md:shadow-gray-300 md:-mx-5 transition-all rounded-md md:px-5 md:my-2";
   return (
     <Card>
       <div className="-mx-5 md:mx-0 my-2 md:my-0 md:px-4 md:py-2 grid grid-cols-5 md:block">
@@ -16,7 +24,7 @@ export default function NavigationCard() {
         <Link
           href="/"
           className={
-            pathname === "/" ? activeElementClasses : nonActiveElementClasses
+            (pathname === "/" || pathname==="") ? activeElementClasses : nonActiveElementClasses
           }
         >
           <svg
@@ -107,13 +115,9 @@ export default function NavigationCard() {
           </svg>
           <span className="hidden md:block">Notifications</span>
         </Link>
-        <Link
-          href="login"
-          className={
-            pathname === "/login"
-              ? activeElementClasses
-              : nonActiveElementClasses
-          }
+        <button
+          onClick={logoutFunction}
+          className="-my-5 items-center flex justify-center md:justify-start gap-4 md:py-3 hover:scale-105 md:-mx-5 transition-all rounded-md md:px-5 md:my-2"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -130,7 +134,7 @@ export default function NavigationCard() {
             />
           </svg>
           <span className="hidden md:block">Logout</span>
-        </Link>
+        </button>
       </div>
     </Card>
   );

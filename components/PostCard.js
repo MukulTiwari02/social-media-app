@@ -1,22 +1,35 @@
 import Card from "./Card";
 import Avatar from "./Avatar";
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import Link from "next/link";
-const PostCard = () => {
+import ReactTimeAgo from "react-time-ago";
+import { UserContext } from "@/context/UserContext";
+const PostCard = ({ post }) => {
   const [optionsVisible, setOptionsVisible] = useState(false);
+  const profile = useContext(UserContext)
+
+  console.log(post)
+
   return (
     <Card>
       <div className="flex gap-3">
         <div>
-          <Link href={'/profile'}><Avatar /></Link>
+          <Link href={"/profile"}>
+            <Avatar url={post?.profiles.avatar} />
+          </Link>
         </div>
         <div className="grow">
           <p>
-            <Link href={'/profile'}><span className="font-semibold hover:underline cursor-pointer">Mukul Tiwari</span></Link>
-            {" "}shared an{" "}
-            <a className="text-socialBlue">album</a>
+            <Link href={"/profile"}>
+              <span className="font-semibold hover:underline cursor-pointer">
+                {post?.profiles.name}
+              </span>
+            </Link>{" "}
+            shared a post.
           </p>
-          <p className="text-gray-500 text-sm">2 hours ago</p>
+          <p className="text-gray-500 text-sm">
+            <ReactTimeAgo date={post?.created_at} />
+          </p>
         </div>
         <div>
           <button
@@ -38,8 +51,13 @@ const PostCard = () => {
               />
             </svg>
           </button>
-          {(
-            <div className={(optionsVisible ? "opacity-100" : "opacity-0" )+` relative transition-all`}>
+          {
+            <div
+              className={
+                (optionsVisible ? "opacity-100" : "opacity-0") +
+                ` relative transition-all`
+              }
+            >
               <div className="absolute -right-4 bg-white shadow-md shadow-gray-300 p-3 rounded-sm border border-gray-100 w-[210px] text-gray-700">
                 <a className="flex py-2 px-2 items-center gap-2 hover:bg-socialBlue hover:bg-opacity-90 hover:text-white hover:scale-110 hover:shadow-md shadow-gray-300 hover:scsale-125 transition-all rounded-md">
                   <svg
@@ -128,16 +146,11 @@ const PostCard = () => {
                 </a>
               </div>
             </div>
-          )}
+          }
         </div>
       </div>
       <div>
-        <p className="my-4 text-sm">
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Atque
-          suscipit sapiente ducimus. Minus iusto officia quae rerum commodi
-          corporis quaerat, optio voluptatem minima illum maxime exercitationem
-          quis consequuntur ratione eum?
-        </p>
+        <p className="my-4 text-sm">{post?.content}</p>
         <div className="rounded-md overflow-hidden">
           <img
             src="https://images.unsplash.com/photo-1498503182468-3b51cbb6cb24?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
@@ -200,7 +213,7 @@ const PostCard = () => {
       </div>
       <div className="flex mt-4 gap-2">
         <div>
-          <Avatar />{" "}
+          <Avatar url={profile?.avatar} />{" "}
         </div>
         <div className="border grow relative rounded-full">
           <textarea
