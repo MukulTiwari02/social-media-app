@@ -4,23 +4,23 @@ import { useContext, useEffect, useState } from "react";
 import Link from "next/link";
 import ReactTimeAgo from "react-time-ago";
 import { UserContext } from "@/context/UserContext";
+import "react-responsive-carousel/lib/styles/carousel.css";
+import { Carousel } from "react-responsive-carousel";
 const PostCard = ({ post }) => {
   const [optionsVisible, setOptionsVisible] = useState(false);
-  const profile = useContext(UserContext)
-
-  console.log(post)
+  const profile = useContext(UserContext);
 
   return (
     <Card>
       <div className="flex gap-3">
         <div>
-          <Link href={"/profile"}>
+          <Link href={"/profile/" + post.profiles.id}>
             <Avatar url={post?.profiles.avatar} />
           </Link>
         </div>
         <div className="grow">
           <p>
-            <Link href={"/profile"}>
+            <Link href={"/profile/" + post.profiles.id}>
               <span className="font-semibold hover:underline cursor-pointer">
                 {post?.profiles.name}
               </span>
@@ -151,14 +151,21 @@ const PostCard = ({ post }) => {
       </div>
       <div>
         <p className="my-4 text-sm">{post?.content}</p>
-        <div className="rounded-md overflow-hidden">
-          <img
-            src="https://images.unsplash.com/photo-1498503182468-3b51cbb6cb24?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-            alt=""
-          />
+        <div className="bg-gray-100 rounded-md overflow-hidden">
+          {post.photos.length > 0 && (
+            <div className="flex gap-4 flex-wrap items-center justify-center">
+              <Carousel showThumbs={false} emulateTouch={true}>
+                {post.photos.map((photoUrl) => (
+                  <div className="flex items-center justify-center h-full w-full">
+                    <img className="object-contain select-none" src={photoUrl} alt="" />
+                  </div>
+                ))}
+              </Carousel>
+            </div>
+          )}
         </div>
       </div>
-      <div className="mt-5 flex gap-8">
+      <div className="mt-3 flex gap-8">
         <button className="flex gap-2 items-center">
           <svg
             xmlns="http://www.w3.org/2000/svg"

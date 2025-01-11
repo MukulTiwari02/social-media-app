@@ -2,61 +2,61 @@ import { uploadUserProfileImage } from "@/helpers/user";
 import { createClient } from "@/utils/supabase/component";
 import { useRouter } from "next/router";
 import { useState } from "react";
-import { DotLoader, FadeLoader, HashLoader, PropagateLoader, PuffLoader, RingLoader } from "react-spinners";
+import { HashLoader, PulseLoader } from "react-spinners";
 
-const Avatar = ({ size = "sm", url, onChange, editable }) => {
-  const classNameSmall = "rounded-full relative ";
-  const width = size === "lg" ? "w-24 md:w-36" : "w-12";
+export default function Cover({ url, editable, onChange }) {
   const router = useRouter();
   const id = router?.query?.id;
   const supabase = createClient();
   const [imageUrl, setImageUrl] = useState(null);
-  const [avatarImageFile, setAvatarImageFile] = useState(null);
+  const [coverImageFile, setCoverImageFile] = useState(null);
   const [isUploading, setIsUploading] = useState(false);
 
-  function changeAvatar(e) {
+  function changeCover(e) {
     const file = e.target.files[0];
     setImageUrl(URL.createObjectURL(file));
-    setAvatarImageFile(e.target.files[0]);
+    setCoverImageFile(e.target.files[0]);
   }
 
   function cancelSelection() {
     setImageUrl(null);
-    setAvatarImageFile(null);
+    setCoverImageFile(null);
   }
 
-  async function uploadAvatarImage() {
+  async function uploadCoverImage() {
     setIsUploading(true);
     await uploadUserProfileImage(
       supabase,
-      avatarImageFile,
-      "avatars",
+      coverImageFile,
+      "covers",
       id,
-      "avatar"
+      "coverImage"
     );
     setIsUploading(false);
     setImageUrl(null);
-    setAvatarImageFile(null);
+    setCoverImageFile(null);
     if (onChange) onChange();
   }
 
   return (
-    <div className={classNameSmall + width}>
-      {editable && imageUrl && (
-        <div className="rounded-full absolute inset-0 bg-white bg-opacity-40"></div>
-      )}
+    <div className="w-full h-full items-center relative">
+      <img
+        className="w-full h-full object-cover"
+        src={imageUrl || url}
+        alt=""
+      />
       {isUploading && (
-        <div className="rounded-full absolute inset-0 bg-white bg-opacity-40 flex items-center justify-center">
-          <div className="inline-block mx-auto bg-opacity-85">
-            <PuffLoader color="gray" size={40} /> 
+        <div className="absolute inset-0 bg-white bg-opacity-70 flex items-center">
+          <div className="inline-block mx-auto opacity-65">
+            <PulseLoader color="gray" size={10} />
           </div>
         </div>
       )}
-      {editable && imageUrl && !isUploading && (
-        <div className="absolute bottom-[8%] left-[13%] md:top-[60%] md:left-[20%] m-2 flex gap-2">
+      {editable && imageUrl && (
+        <div className="absolute bottom-0 right-0 m-2 flex gap-2">
           <button
-            onClick={uploadAvatarImage}
-            className="flex gap-2 text-sm items-center bg-gray-400 opacity-90 hover:opacity-100 p-2 rounded-full"
+            onClick={uploadCoverImage}
+            className="flex gap-2 text-sm items-center bg-gray-300 opacity-80 hover:opacity-100 p-2 md:py-2 md:px-3 rounded-full md:rounded-md"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -64,7 +64,7 @@ const Avatar = ({ size = "sm", url, onChange, editable }) => {
               viewBox="0 0 24 24"
               strokeWidth={1.5}
               stroke="currentColor"
-              className="h-2 md:h-4"
+              className="size-4"
             >
               <path
                 strokeLinecap="round"
@@ -72,10 +72,12 @@ const Avatar = ({ size = "sm", url, onChange, editable }) => {
                 d="m4.5 12.75 6 6 9-13.5"
               />
             </svg>
+
+            <span className="hidden md:block">Confirm</span>
           </button>
           <button
             onClick={cancelSelection}
-            className="flex gap-2 text-sm items-center bg-gray-400 opacity-90 hover:opacity-100 p-2 rounded-full"
+            className="flex gap-2 text-sm items-center bg-gray-300 opacity-80 hover:opacity-100 p-2 md:py-2 md:px-3 rounded-full md:rounded-md"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -83,7 +85,7 @@ const Avatar = ({ size = "sm", url, onChange, editable }) => {
               viewBox="0 0 24 24"
               strokeWidth={1.5}
               stroke="currentColor"
-              className="h-2 md:h-4"
+              className="size-4"
             >
               <path
                 strokeLinecap="round"
@@ -91,15 +93,17 @@ const Avatar = ({ size = "sm", url, onChange, editable }) => {
                 d="M6 18 18 6M6 6l12 12"
               />
             </svg>
+
+            <span className="hidden md:block">Cancel</span>
           </button>
         </div>
       )}
 
       {editable && !imageUrl && (
-        <label className="absolute top-[60%] left-[60%] md:left-[65%] md:top-[65%] m-2 shadow-md shadow-gray-100 cursor-pointer flex gap-2 text-sm items-center border justify-center border-gray-200 bg-gray-50 opacity-80 hover:opacity-90 p-1 md:p-2 rounded-full">
+        <label className="absolute bottom-0 right-0 shadow-sm shadow-gray-100 m-2 cursor-pointer flex gap-2 text-sm items-center bg-gray-200 opacity-80 hover:opacity-100 p-2 md:py-2 md:px-3 rounded-full md:rounded-md">
           <input
             accept="image/png, image/jpeg, image/jpg"
-            onChange={(e) => changeAvatar(e)}
+            onChange={(e) => changeCover(e)}
             className="hidden"
             type="file"
             name="uploadPhotos"
@@ -111,7 +115,7 @@ const Avatar = ({ size = "sm", url, onChange, editable }) => {
             viewBox="0 0 24 24"
             strokeWidth={1.5}
             stroke="currentColor"
-            className="h-4 md:h-5"
+            className="size-4"
           >
             <path
               strokeLinecap="round"
@@ -124,15 +128,9 @@ const Avatar = ({ size = "sm", url, onChange, editable }) => {
               d="M16.5 12.75a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0ZM18.75 10.5h.008v.008h-.008V10.5Z"
             />
           </svg>
+          <span className="hidden md:block">Change cover image</span>
         </label>
       )}
-      <img
-        className="aspect-square w-full h-full rounded-full object-cover"
-        src={imageUrl || url}
-        alt=""
-      />
     </div>
   );
-};
-
-export default Avatar;
+}

@@ -3,50 +3,70 @@ import Avatar from "./Avatar";
 import { useContext, useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/component";
 import { UserContext } from "@/context/UserContext";
-import { imageConfigDefault } from "next/dist/shared/lib/image-config";
+import { SyncLoader } from "react-spinners";
 
 const PostFormCard = ({ onPost }) => {
   const [content, setContent] = useState("");
   const supabase = createClient();
   const [uploads, setUploads] = useState([]);
-  // const [postImagesSelected, setPostImagesSelected] = useState([]);
+  const [isUploading, setIsUploading] = useState(false)
+  let photosUrl = [];
 
   const profile = useContext(UserContext);
 
-  function sharePost() {
+  async function uploadPhotos() {
+    for (let index in uploads) {
+      const photoFile = uploads[index];
+      const newName = Date.now() + photoFile.name;
+      await supabase.storage
+        .from("photos")
+        .upload(newName, photoFile)
+        .then((result) => {
+          console.log("Uploaded");
+          const url =
+            process.env.NEXT_PUBLIC_SUPABASE_URL +
+            "/storage/v1/object/public/photos/" +
+            encodeURIComponent(result.data.path);
+          photosUrl = [...photosUrl, url];
+        });
+    }
+  }
+
+  async function sharePost() {
+    setIsUploading(true);
+    await uploadPhotos();
     supabase
       .from("posts")
       .insert({
         author: profile.id,
         content,
+        photos:photosUrl
       })
       .then((response) => {
         if (!response.error) {
           setContent("");
+          setUploads([]);
+          photosUrl = [];
+          setIsUploading(false);
           if (onPost) onPost();
         }
       });
   }
 
-  function removeCurrentImage(image)
-  {
-    const newUploads = uploads.filter(file => file!=image);
-    setUploads(newUploads)
+  function removeCurrentImage(image) {
+    const newUploads = uploads.filter((file) => file != image);
+    setUploads(newUploads);
   }
 
   function selectUploads(e) {
     const newFiles = Array.from(e.target.files);
-    if(uploads.length+newFiles.length<=10)
-    {
-    const prevUploads = [...new Set(uploads.concat(newFiles))];
-    console.log(prevUploads)
-    setUploads(prevUploads);
-    }
-    else {
+    if (uploads.length + newFiles.length <= 10) {
+      const prevUploads = [...new Set(uploads.concat(newFiles))];
+      setUploads(prevUploads);
+    } else {
       alert("Can upload only a maximum of 10 images.");
       return;
     }
-    
   }
 
   return (
@@ -65,10 +85,13 @@ const PostFormCard = ({ onPost }) => {
         ></textarea>
       </div>
       {uploads && (
-        <div className="flex gap-2 flex-wrap">
-          {(uploads).map((upload) => (
+        <div className="mt-2 flex gap-2 flex-wrap">
+          {uploads.map((upload) => (
             <div className="h-24 rounded-md overflow-hidden relative">
-              <button onClick={() => removeCurrentImage(upload)} className="absolute right-2 top-2 text-gray-300 hover:scale-110">
+              <button
+                onClick={() => removeCurrentImage(upload)}
+                className="absolute right-2 top-2 text-gray-300 hover:scale-110"
+              >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 16 16"
@@ -90,7 +113,9 @@ const PostFormCard = ({ onPost }) => {
             </div>
           ))}
         </div>
-      )}
+      )
+      }
+      {isUploading && <h1 className="mt-2 p-2"><SyncLoader size={8}  color="black" /></h1>}
       <div className="flex gap-5 mt-2 items-center flex-wrap">
         <div>
           <label className="flex gap-1 cursor-pointer">

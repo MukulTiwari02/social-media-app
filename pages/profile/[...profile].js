@@ -8,6 +8,9 @@ import Link from "next/link";
 
 const ProfileRouterPages = () => {
   const router = useRouter();
+  const userId = router.query.profile
+  console.log(userId)
+
   const { asPath: pathname } = router;
   const isAbout = pathname === "/profile/about";
   const isFriends = pathname === "/profile/friends";
