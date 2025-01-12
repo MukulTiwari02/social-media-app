@@ -1,17 +1,14 @@
-import Avatar from "@/components/Avatar";
-import Card from "@/components/Card";
-import Layout from "@/components/Layout";
-import PostCard from "@/components/PostCard";
 import ProfilePageLayout from "@/components/ProfilePageLayout";
+import { UserContextProvider } from "@/context/UserContext";
 import { createClient } from "@/utils/supabase/component";
-import Link from "next/link";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 
-export default function Profile() {
+export default function ProfilePage({children}) {
   const [profile, setProfile] = useState(null);
   const supabase = createClient();
   const router = useRouter();
+  const tab = router.query?.tab?.length ? router.query?.tab[0] : "";
   const userId = router.query.id;
   const [currentUser, setCurrentUser] = useState(null);
   const session = supabase.auth.getUser();
@@ -19,6 +16,11 @@ export default function Profile() {
 
   useEffect(() => {
     setIsMyUser(currentUser?.id === profile?.id);
+    if ((!userId || userId==='about'||userId==='photos'||userId==='friends' || userId==='posts') && currentUser) {
+      if(!userId)
+      router.push("/profile/" + currentUser?.id);
+    else router.push(`/profile/${currentUser?.id}/${userId}`)
+    }
   }, [profile, currentUser]);
 
   useEffect(() => {
@@ -27,7 +29,7 @@ export default function Profile() {
     });
   }, []);
 
-  function fetchProfile(){
+  function fetchProfile() {
     const profilefetching = supabase
       .from("profiles")
       .select()
@@ -42,14 +44,13 @@ export default function Profile() {
   useEffect(() => {
     if (!userId) return;
     fetchProfile();
-    
   }, [userId]);
 
   return (
-    <ProfilePageLayout
+    userId && <UserContextProvider ><ProfilePageLayout
       onChange={fetchProfile}
       userProfile={profile}
       isMyUser={isMyUser}
-    ></ProfilePageLayout>
+    >{children}</ProfilePageLayout></UserContextProvider>
   );
 }

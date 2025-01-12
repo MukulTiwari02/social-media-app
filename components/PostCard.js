@@ -6,9 +6,49 @@ import ReactTimeAgo from "react-time-ago";
 import { UserContext } from "@/context/UserContext";
 import "react-responsive-carousel/lib/styles/carousel.css";
 import { Carousel } from "react-responsive-carousel";
+import { createClient } from "@/utils/supabase/component";
 const PostCard = ({ post }) => {
+  const supabase = createClient();
   const [optionsVisible, setOptionsVisible] = useState(false);
   const profile = useContext(UserContext);
+  const [postLikes, setPostLikes] = useState([]);
+
+  useEffect(() => {
+    fetchLikes();
+  }, [profile]);
+
+  function fetchLikes() {
+    if (profile)
+      supabase
+        .from("likes")
+        .select()
+        .eq("post_id", post.id)
+        .eq("user_id", profile.id)
+        .then((result) => setPostLikes(result.data));
+  }
+
+  const isLikedByMe = !!postLikes.find((like) => like.user_id === profile.id);
+  console.log(isLikedByMe, postLikes);
+
+  async function toggleLike() {
+    if (isLikedByMe) {
+      const response = await supabase
+        .from("likes")
+        .delete()
+        .eq("post_id", post.id)
+        .eq("user_id", profile.id)
+        .then(() => fetchLikes());
+      return;
+    }
+
+    const response = await supabase
+      .from("likes")
+      .insert({
+        post_id: post.id,
+        user_id: profile.id,
+      })
+      .then(() => fetchLikes());
+  }
 
   return (
     <Card>
@@ -28,7 +68,7 @@ const PostCard = ({ post }) => {
             shared a post.
           </p>
           <p className="text-gray-500 text-sm">
-            <ReactTimeAgo date={post?.created_at} />
+            <ReactTimeAgo date={new Date(post?.created_at).getTime()} />
           </p>
         </div>
         <div>
@@ -157,7 +197,11 @@ const PostCard = ({ post }) => {
               <Carousel showThumbs={false} emulateTouch={true}>
                 {post.photos.map((photoUrl) => (
                   <div className="flex items-center justify-center h-full w-full">
-                    <img className="object-contain select-none" src={photoUrl} alt="" />
+                    <img
+                      className="object-contain select-none"
+                      src={photoUrl}
+                      alt=""
+                    />
                   </div>
                 ))}
               </Carousel>
@@ -166,14 +210,14 @@ const PostCard = ({ post }) => {
         </div>
       </div>
       <div className="mt-3 flex gap-8">
-        <button className="flex gap-2 items-center">
+        <button onClick={toggleLike} className="flex gap-2 items-center">
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 24 24"
             strokeWidth={1.5}
             stroke="currentColor"
-            className="size-6"
+            className={"size-6" + (isLikedByMe ? " fill-red-500" : "")}
           >
             <path
               strokeLinecap="round"
@@ -181,7 +225,7 @@ const PostCard = ({ post }) => {
               d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z"
             />
           </svg>
-          72
+          {postLikes?.length}
         </button>
         <button className="flex gap-2 items-center">
           <svg

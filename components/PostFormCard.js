@@ -22,7 +22,6 @@ const PostFormCard = ({ onPost }) => {
         .from("photos")
         .upload(newName, photoFile)
         .then((result) => {
-          console.log("Uploaded");
           const url =
             process.env.NEXT_PUBLIC_SUPABASE_URL +
             "/storage/v1/object/public/photos/" +

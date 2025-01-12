@@ -54,7 +54,7 @@ export default function Home() {
         {user && profile && <PostFormCard onPost={fetchPosts} />}
         {posts?.length > 0 &&
           posts.map((post) => (
-            <PostCard key={post.created_at} user={user} post={post} />
+            <PostCard key={post.created_at} post={post} />
           ))}
       </UserContext.Provider>
     </Layout>
