@@ -19,7 +19,7 @@ export default function NavigationCard({ isMyUser }) {
   const activeElementClasses =
     "-translate-y-2 md:translate-y-0 -my-7 md:my-2 items-center text- flex md:justify-start gap-4 md:py-4 bg-socialBlue md:-mx-10 md:px-10 md:text-white rounded-md md:shadow-md md:shadow-gray-300 justify-center";
   const nonActiveElementClasses =
-    "-my-5 md:my-0 items-center flex justify-center md:justify-start gap-4 md:py-3 md:hover:bg-socialBlue md:hover:bg-opacity-40 hover:scale-110 md:hover:shadow-md md:shadow-gray-300 md:-mx-5 transition-all rounded-md md:px-5 md:my-2";
+    "-my-4 md:my-0 items-center flex justify-center md:justify-start gap-4 md:py-3 md:hover:bg-socialBlue md:hover:bg-opacity-40 hover:scale-110 md:hover:shadow-md md:shadow-gray-300 md:-mx-5 transition-all rounded-md md:px-5 md:my-2";
   return (
     <Card>
       <div className="-mx-5 md:mx-0 my-2 md:my-0 md:px-4 md:py-2 grid grid-cols-5 md:block">
@@ -27,7 +27,7 @@ export default function NavigationCard({ isMyUser }) {
         <Link
           href="/"
           className={
-            pathname === "/" || pathname === ""
+            pathname === "/" || pathname === "" || router.query?.code
               ? activeElementClasses
               : nonActiveElementClasses
           }
@@ -144,8 +144,9 @@ export default function NavigationCard({ isMyUser }) {
         </Link>
         <button
           onClick={logoutFunction}
-          className="-my-5 items-center flex justify-center md:justify-start gap-4 md:py-3 hover:scale-105 md:-mx-5 transition-all rounded-md md:px-5 md:my-2"
+          className="w-full -my-4"
         >
+          <span className={nonActiveElementClasses}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -160,7 +161,7 @@ export default function NavigationCard({ isMyUser }) {
               d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75"
             />
           </svg>
-          <span className="hidden md:block">Logout</span>
+          <span className="hidden md:block">Logout</span></span>
         </button>
       </div>
     </Card>

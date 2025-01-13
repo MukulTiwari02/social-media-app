@@ -28,9 +28,9 @@ const Layout = ({ children, hideNavigation, isMyUser }) => {
     >
       <div className="mt-4 mx-4 flex md:flex-row flex-col-reverse max-w-4xl lg:mx-auto md:gap-6 mb-24 md:mb-0">
         {!hideNavigation && (
-          <div className="md:w-3/12 fixed bottom-0 left-0 w-full z-10 md:static -mb-4">
+          <aside className="md:w-3/12 fixed bottom-0 left-0 md:top-0 md:h-fit w-full z-10 md:sticky -mb-4">
             <NavigationCard isMyUser={isMyUser}/>
-          </div>
+          </aside>
         )}
         <div className={rightColumnClasses}>{children}</div>
       </div>

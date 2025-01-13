@@ -1,5 +1,6 @@
 import Card from "./Card";
 import Avatar from "./Avatar";
+import Comment from "./Comment";
 import { useContext, useEffect, useState } from "react";
 import Link from "next/link";
 import ReactTimeAgo from "react-time-ago";
@@ -10,33 +11,105 @@ import { createClient } from "@/utils/supabase/component";
 const PostCard = ({ post }) => {
   const supabase = createClient();
   const [optionsVisible, setOptionsVisible] = useState(false);
+  const [commentText, setCommentText] = useState("");
   const profile = useContext(UserContext);
   const [postLikes, setPostLikes] = useState([]);
+  const [commentsOnPost, setCommentsOnPost] = useState([]);
+  const [showComments, setShowComments] = useState(false);
+  const [postIsSaved, setPostIsSaved] = useState(false);
+  const [mouseOverOptions, setMouseOverOptions] = useState(false);
 
   useEffect(() => {
     fetchLikes();
+    fetchComments();
+    fetchIfPostIsSaved();
   }, [profile]);
+
+  function fetchComments() {
+    if (profile)
+      supabase
+        .from("comments")
+        .select("id, created_at,content,profiles(id,avatar,name)")
+        .eq("post_id", post?.id)
+        .then((result) => setCommentsOnPost(result.data));
+  }
 
   function fetchLikes() {
     if (profile)
       supabase
         .from("likes")
         .select()
-        .eq("post_id", post.id)
-        .eq("user_id", profile.id)
+        .eq("post_id", post?.id)
         .then((result) => setPostLikes(result.data));
   }
 
-  const isLikedByMe = !!postLikes.find((like) => like.user_id === profile.id);
-  console.log(isLikedByMe, postLikes);
+  function fetchIfPostIsSaved() {
+    if (profile) {
+      supabase
+        .from("saved")
+        .select()
+        .eq("post_id", post?.id)
+        .eq("user_id", profile?.id)
+        .then(({ data }) => {
+          if (data.length) setPostIsSaved(true);
+          else setPostIsSaved(false);
+        });
+    }
+  }
+
+  function toggleSavePost() {
+    if (postIsSaved && profile) {
+      supabase
+        .from("saved")
+        .delete()
+        .eq("post_id", post?.id)
+        .eq("user_id", profile?.id)
+        .then(() => {
+          fetchIfPostIsSaved();
+        });
+
+      return;
+    }
+
+    if (profile)
+      supabase
+        .from("saved")
+        .insert({
+          post_id: post?.id,
+          user_id: profile?.id,
+        })
+        .then(() => fetchIfPostIsSaved());
+  }
+
+  function postMyComment(ev) {
+    ev.preventDefault();
+    supabase
+      .from("comments")
+      .insert({
+        post_id: post?.id,
+        author_id: profile?.id,
+        content: commentText,
+      })
+      .then((result) => {
+        console.log(result);
+        fetchComments();
+        setCommentText("");
+      });
+  }
+
+  const isLikedByMe = !!postLikes.find((like) => like?.user_id === profile?.id);
+
+  function toggleShowComments() {
+    setShowComments(!showComments);
+  }
 
   async function toggleLike() {
     if (isLikedByMe) {
       const response = await supabase
         .from("likes")
         .delete()
-        .eq("post_id", post.id)
-        .eq("user_id", profile.id)
+        .eq("post_id", post?.id)
+        .eq("user_id", profile?.id)
         .then(() => fetchLikes());
       return;
     }
@@ -44,8 +117,8 @@ const PostCard = ({ post }) => {
     const response = await supabase
       .from("likes")
       .insert({
-        post_id: post.id,
-        user_id: profile.id,
+        post_id: post?.id,
+        user_id: profile?.id,
       })
       .then(() => fetchLikes());
   }
@@ -54,15 +127,15 @@ const PostCard = ({ post }) => {
     <Card>
       <div className="flex gap-3">
         <div>
-          <Link href={"/profile/" + post.profiles.id}>
-            <Avatar url={post?.profiles.avatar} />
+          <Link href={"/profile/" + post.profiles?.id}>
+            <Avatar url={post?.profiles?.avatar} />
           </Link>
         </div>
         <div className="grow">
           <p>
-            <Link href={"/profile/" + post.profiles.id}>
+            <Link href={"/profile/" + post.profiles?.id}>
               <span className="font-semibold hover:underline cursor-pointer">
-                {post?.profiles.name}
+                {post?.profiles?.name}
               </span>
             </Link>{" "}
             shared a post.
@@ -71,10 +144,12 @@ const PostCard = ({ post }) => {
             <ReactTimeAgo date={new Date(post?.created_at).getTime()} />
           </p>
         </div>
-        <div>
+        <div onMouseLeave={() => setOptionsVisible(false)}>
           <button
             className="text-gray-600"
-            onClick={() => setOptionsVisible(!optionsVisible)}
+            onClick={() => {
+              setOptionsVisible(!optionsVisible);
+            }}
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -95,27 +170,32 @@ const PostCard = ({ post }) => {
             <div
               className={
                 (optionsVisible ? "opacity-100" : "opacity-0") +
-                ` relative transition-all`
+                ` relative transition-all z-10`
               }
             >
-              <div className="absolute -right-4 bg-white shadow-md shadow-gray-300 p-3 rounded-sm border border-gray-100 w-[210px] text-gray-700">
-                <a className="flex py-2 px-2 items-center gap-2 hover:bg-socialBlue hover:bg-opacity-90 hover:text-white hover:scale-110 hover:shadow-md shadow-gray-300 hover:scsale-125 transition-all rounded-md">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    strokeWidth={1.5}
-                    stroke="currentColor"
-                    className="size-5"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z"
-                    />
-                  </svg>
-                  Save post
-                </a>
+              <div className="absolute -right-4 bg-white shadow-md shadow-gray-300 p-3 rounded-md border border-gray-100 w-[210px] text-gray-700">
+                <button onClick={toggleSavePost} className="w-full -mb-2">
+                  <span className="flex py-2 px-2 items-center gap-2 md:hover:bg-socialBlue md:hover:bg-opacity-90 md:hover:text-white md:hover:scale-110 md:hover:shadow-md shadow-gray-300 md:hover:scsale-125 transition-all rounded-md">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      strokeWidth={1.5}
+                      stroke="currentColor"
+                      className={
+                        "size-5" +
+                        (postIsSaved ? " fill-inherit stroke-none " : " ")
+                      }
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0 1 11.186 0Z"
+                      />
+                    </svg>
+                    {!postIsSaved ? "Save Post" : "Unsave post"}
+                  </span>
+                </button>
                 <a className="flex py-2 px-2 items-center gap-2 hover:bg-socialBlue hover:bg-opacity-90 hover:text-white hover:scale-110 hover:shadow-md shadow-gray-300 hover:scsale-125 transition-all rounded-md">
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -227,7 +307,10 @@ const PostCard = ({ post }) => {
           </svg>
           {postLikes?.length}
         </button>
-        <button className="flex gap-2 items-center">
+        <button
+          onClick={toggleShowComments}
+          className="flex gap-2 items-center"
+        >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
@@ -242,7 +325,7 @@ const PostCard = ({ post }) => {
               d="M12 20.25c4.97 0 9-3.694 9-8.25s-4.03-8.25-9-8.25S3 7.444 3 12c0 2.104.859 4.023 2.273 5.48.432.447.74 1.04.586 1.641a4.483 4.483 0 0 1-.923 1.785A5.969 5.969 0 0 0 6 21c1.282 0 2.47-.402 3.445-1.087.81.22 1.668.337 2.555.337Z"
             />
           </svg>
-          12
+          {commentsOnPost.length}
         </button>
         <button className="flex gap-2 items-center">
           <svg
@@ -267,12 +350,16 @@ const PostCard = ({ post }) => {
           <Avatar url={profile?.avatar} />{" "}
         </div>
         <div className="border grow relative rounded-full">
-          <textarea
-            className="block overflow-hidden w-full resize-none p-3 px-4 h-12 rounded-full"
-            name=""
-            id=""
-            placeholder="Leave a comment"
-          ></textarea>
+          <form onSubmit={postMyComment}>
+            <input
+              className="block overflow-hidden w-full resize-none p-3 px-4 h-12 rounded-full"
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
+              name=""
+              id=""
+              placeholder="Leave a comment"
+            ></input>
+          </form>
           <button className="absolute top-3 right-3 text-gray-600">
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -291,6 +378,13 @@ const PostCard = ({ post }) => {
           </button>
         </div>
       </div>
+      {showComments && commentsOnPost.length > 0 && (
+        <div className="w-[90%] mx-10 mt-3">
+          {commentsOnPost.map((comment) => (
+            <Comment comment={comment} />
+          ))}
+        </div>
+      )}
     </Card>
   );
 };

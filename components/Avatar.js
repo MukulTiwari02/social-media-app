@@ -4,9 +4,9 @@ import { useRouter } from "next/router";
 import { useState } from "react";
 import { DotLoader, FadeLoader, HashLoader, PropagateLoader, PuffLoader, RingLoader } from "react-spinners";
 
-const Avatar = ({ size = "sm", url, onChange, editable }) => {
+const Avatar = ({ size, url, onChange, editable }) => {
   const classNameSmall = "rounded-full relative ";
-  const width = size === "lg" ? "w-24 md:w-36" : "w-12";
+  let width = size === "lg" ? "w-24 md:w-36" : (size ==='sm' ? "w-9 h-9" : "w-12");
   const router = useRouter();
   const id = router?.query?.id;
   const supabase = createClient();
