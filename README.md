@@ -1,40 +1,135 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/pages/api-reference/create-next-app).
+# Social Media App 🧑‍🧻‍🧱📸
 
-## Getting Started
+A full-stack social media application built with [Next.js](https://nextjs.org/), styled using [Tailwind CSS](https://tailwindcss.com/), and powered by [Supabase](https://supabase.com/) for backend services including authentication, real-time database, and storage.
 
-First, run the development server:
+🔗 **Repository**: [https://github.com/MukulTiwari02/social-media-app](https://github.com/MukulTiwari02/social-media-app)
+
+---
+
+## ✨ Features
+
+- 🔐 Authentication with Supabase (Email, Google, GitHub)
+- 👤 User Profiles
+- 🏠 Home Feed with Posts
+- 📝 Create & View Posts (Text + Photos)
+- 💬 Like and Comment on Posts
+- 💾 Save Posts
+- 🛎️ Notifications
+- 🧑‍🤝🧑 Friends and Friend Requests
+
+---
+
+## 💪 Tech Stack
+
+- **Frontend:** Next.js, React, Tailwind CSS
+- **Backend & Auth:** Supabase (PostgreSQL + Auth + Storage)
+- **UI Utilities:** React Icons, React Spinners, Carousel, Time Ago
+
+---
+
+## 📦 Getting Started
+
+### 1. Clone the Repository
+
+```bash
+git clone https://github.com/MukulTiwari02/social-media-app.git
+cd social-media-app
+```
+
+### 2. Install Dependencies
+
+```bash
+npm install
+```
+
+### 3. Set Up Supabase
+
+#### a. Create Supabase Account
+
+1. Go to [https://supabase.com](https://supabase.com)
+2. Sign up and create a new project.
+
+#### b. Get Supabase Credentials
+
+1. Once your project is ready, go to **Project Settings** → **API**
+2. Copy the values for:
+   - `Project URL` → `NEXT_PUBLIC_SUPABASE_URL`
+   - `anon public` API key → `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+
+#### c. Add to `.env` file
+
+Create a `.env.local` file in the root and add:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=your-project-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+```
+
+#### d. Enable Auth Providers (Google, GitHub)
+
+1. Go to **Authentication → Providers**
+2. Enable **Google** and/or **GitHub**
+3. Provide OAuth credentials:
+   - Follow the guide to [set up Google OAuth](https://supabase.com/docs/guides/auth/auth-google)
+   - For GitHub, create an OAuth app [here](https://github.com/settings/developers) and provide the Client ID & Secret
+
+#### e. Create Database Tables
+
+Go to the **SQL Editor** or manually add required tables like profile, posts, likes, friends etc in Supabase:
+Note: make sure to look for required tables in the code.
+
+#### f. Create Storage Bucket
+
+1. Go to **Storage** in Supabase
+2. Create a new bucket named `photos`(watch console for other requirements to be fulfilled on supabase)
+3. Set public access if needed (for quick dev), or configure RLS
+
+---
+
+### 4. Run Locally
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Visit: [http://localhost:3000](http://localhost:3000)
 
-You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
+---
 
-[API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
+## 📂 Pages
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) instead of React pages.
+| Route            | Description                  |
+|------------------|------------------------------|
+| `/login`         | User authentication/login    |
+| `/home`          | Main feed page               |
+| `/profile`       | User profile page            |
+| `/friends`       | View and manage friends      |
+| `/notifications` | View notifications           |
+| `/saved-posts`   | View saved/liked posts       |
 
-This project uses [`next/font`](https://nextjs.org/docs/pages/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 🔮 Scripts
 
-To learn more about Next.js, take a look at the following resources:
+| Command         | Description                 |
+|------------------|-----------------------------|
+| `npm run dev`    | Start development server     |
+| `npm run build`  | Build for production         |
+| `npm start`      | Start production server      |
+| `npm run lint`   | Run linter                   |
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn-pages-router) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 💡 Notes
 
-## Deploy on Vercel
+- Supabase Auth uses server/client helpers for seamless session handling.
+- Time formatting is handled with `react-time-ago` and `javascript-time-ago`.
+- All media is stored in Supabase Storage and linked via public URLs.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+---
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/pages/building-your-application/deploying) for more details.
+## 🤝 Contributing
+
+Pull requests are welcome! For major changes, please open an issue first to discuss.
+
+
