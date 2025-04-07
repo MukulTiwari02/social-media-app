@@ -96,19 +96,6 @@ Visit: [http://localhost:3000](http://localhost:3000)
 
 ---
 
-## 📂 Pages
-
-| Route            | Description                  |
-|------------------|------------------------------|
-| `/login`         | User authentication/login    |
-| `/home`          | Main feed page               |
-| `/profile`       | User profile page            |
-| `/friends`       | View and manage friends      |
-| `/notifications` | View notifications           |
-| `/saved-posts`   | View saved/liked posts       |
-
----
-
 ## 🔮 Scripts
 
 | Command         | Description                 |
